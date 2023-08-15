@@ -21,3 +21,9 @@ The default values are balanced around 8 seconds (the duration of the assault cl
 * `sm_auxvision_initial_cost`
   * How much AUX does starting the vision mode cost.
   * default: `4.0`, minimum: `0`, maximum: `100`
+* `sm_auxvision_class_bits`
+  * Bit flags for which classes to enable AUX cost for.
+  * default: 2 (assault only)
+  * Note that since supports have no AUX, enabling vision AUX cost for them will disable the support vision mode entirely.
+  * Possible values: 0 (no classes) to 7 (`(1|2|4)` i.e. all classes)
+  * Example values: 1 (recon only), 2 (assault only), 3 (recon and assault)
