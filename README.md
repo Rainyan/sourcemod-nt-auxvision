@@ -6,7 +6,7 @@ Experimental SourceMod plugin for Neotokyo that makes vision modes use AUX power
 * The [neotokyo.inc include](https://github.com/softashell/sourcemod-nt-include/blob/master/scripting/include/neotokyo.inc), version 1.1 or newer
 
 ## Config
-These cvars are recommended to be set in `cfg/sourcemod/plugin.nt_auxvision.cfg`.
+These cvars are recommended to be stored in `cfg/sourcemod/plugin.nt_auxvision.cfg`. This config file is automatically generated with the below default values on first run.
 
 The default values are balanced around 8 seconds (the duration of the assault class's thermoptic cloak).
 
