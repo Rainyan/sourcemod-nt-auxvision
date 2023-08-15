@@ -1,5 +1,5 @@
 # sourcemod-nt-auxvision
-Experimental SourceMod plugin for Neotokyo that makes vision modes use AUX power.
+Experimental SourceMod plugin for Neotokyo that makes vision modes use AUX power, with optional class filtering. By default, only assault vision is affected.
 
 [Example](https://github.com/Rainyan/sourcemod-nt-auxvision/assets/6595066/d7b3bc6c-3577-4db1-a2a9-c69af16f80a1)
 
