@@ -1,6 +1,8 @@
 # sourcemod-nt-auxvision
 Experimental SourceMod plugin for Neotokyo that makes vision modes use AUX power.
 
+[Example](https://github.com/Rainyan/sourcemod-nt-auxvision/assets/6595066/d7b3bc6c-3577-4db1-a2a9-c69af16f80a1)
+
 ## Build requirements
 * SourceMod 1.7.3 or newer
 * The [neotokyo.inc include](https://github.com/softashell/sourcemod-nt-include/blob/master/scripting/include/neotokyo.inc), version 1.1 or newer
