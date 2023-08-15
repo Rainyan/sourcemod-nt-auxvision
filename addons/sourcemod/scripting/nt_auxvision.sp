@@ -5,7 +5,7 @@
 #pragma semicolon 1
 #pragma newdecls required
 
-#define PLUGIN_VERSION "0.1.0"
+#define PLUGIN_VERSION "0.2.0"
 
 #define DEBUG_PROFILE 0
 #if DEBUG_PROFILE
@@ -13,7 +13,14 @@
 Profiler _prof;
 #endif
 
-ConVar _aux_secs, _cooldown, _init_cost;
+#define BF_RECON (1 << 0)
+#define BF_ASSAULT (1 << 1)
+#define BF_SUPPORT (1 << 2)
+// Which class(es) to have AUX cost enabled for, by default.
+#define DEFAULT_CLASS_BITS (BF_ASSAULT)
+#define MAX_CLASS_BITS (BF_RECON | BF_ASSAULT | BF_SUPPORT)
+
+ConVar _aux_secs, _cooldown, _init_cost, _class_bits;
 
 public Plugin myinfo = {
 	name = "NT vision modes AUX cost",
@@ -39,6 +46,12 @@ public void OnPluginStart()
 		"How much AUX does starting the vision mode cost",
 		_, true, 0.0, true, 100.0);
 
+	char bits_buffer[4];
+	IntToString(DEFAULT_CLASS_BITS, bits_buffer, sizeof(bits_buffer));
+	_class_bits = CreateConVar("sm_auxvision_class_bits", bits_buffer,
+		"Bit flags for which classes to enable AUX cost for. Recon: 1, Assault: 2, Support: 4. Note that since supports have no AUX, enabling vision AUX cost for them will disable the support vision entirely.",
+		_, true, 0.0, true, float(MAX_CLASS_BITS));
+
 	AutoExecConfig();
 }
 
@@ -49,6 +62,18 @@ public Action OnPlayerRunCmd(int client, int& buttons, int& impulse, float vel[3
 #if DEBUG_PROFILE
 	_prof.Start();
 #endif
+
+	if (!IsPlayerAlive(client))
+	{
+		return Plugin_Continue;
+	}
+
+	int class = GetPlayerClass(client);
+
+	if (!(GetBitsOfClass(class) & _class_bits.IntValue))
+	{
+		return Plugin_Continue;
+	}
 
 	static bool prev_vision[NEO_MAXPLAYERS + 1];
 
@@ -79,9 +104,7 @@ public Action OnPlayerRunCmd(int client, int& buttons, int& impulse, float vel[3
 	{
 		buttons &= ~IN_VISION;
 		SetPlayerVision(client, 0);
-		SetPlayerAUX(client,
-			-_cooldown.FloatValue * GetAUXRecoveryScale(GetPlayerClass(client))
-		);
+		SetPlayerAUX(client, -_cooldown.FloatValue * GetAUXRecoveryScale(class));
 #if DEBUG_PROFILE
 		_prof.Stop();
 		PrintToServer("OnPlayerRunCmd: %f", _prof.Time);
@@ -90,7 +113,7 @@ public Action OnPlayerRunCmd(int client, int& buttons, int& impulse, float vel[3
 	}
 
 	// TODO: refactor
-	aux -= 10.0 * (10.0 / _aux_secs.FloatValue) * GetAUXDrainScale(GetPlayerClass(client));
+	aux -= 10.0 * (10.0 / _aux_secs.FloatValue) * GetAUXDrainScale(class);
 
 	SetPlayerAUX(client, aux);
 
@@ -99,6 +122,23 @@ public Action OnPlayerRunCmd(int client, int& buttons, int& impulse, float vel[3
 	PrintToServer("OnPlayerRunCmd: %f", _prof.Time);
 #endif
 	return Plugin_Continue;
+}
+
+int GetBitsOfClass(int class)
+{
+	if (class == CLASS_RECON)
+	{
+		return BF_RECON;
+	}
+	if (class == CLASS_ASSAULT)
+	{
+		return BF_ASSAULT;
+	}
+	if (class == CLASS_SUPPORT)
+	{
+		return BF_SUPPORT;
+	}
+	return 0;
 }
 
 float GetAUXDrainScale(int class)
