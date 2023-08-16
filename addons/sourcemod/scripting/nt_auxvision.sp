@@ -49,7 +49,7 @@ public void OnPluginStart()
 	char bits_buffer[4];
 	IntToString(DEFAULT_CLASS_BITS, bits_buffer, sizeof(bits_buffer));
 	_class_bits = CreateConVar("sm_auxvision_class_bits", bits_buffer,
-		"Bit flags for which classes to enable AUX cost for. Recon: 1, Assault: 2, Support: 4. Note that since supports have no AUX, enabling vision AUX cost for them will disable the support vision entirely.",
+		"Bit flags for which classes to enable AUX cost for. Recon: 1, Assault: 2, Support: 4. Note that since supports have no AUX, enabling vision AUX cost for them will do nothing.",
 		_, true, 0.0, true, float(MAX_CLASS_BITS));
 
 	AutoExecConfig();
@@ -113,7 +113,9 @@ public Action OnPlayerRunCmd(int client, int& buttons, int& impulse, float vel[3
 	}
 
 	// TODO: refactor
-	aux -= 10.0 * (10.0 / _aux_secs.FloatValue) * GetAUXDrainScale(class);
+	aux -= 10.0 * (10.0 / _aux_secs.FloatValue) *
+		GetAUXDrainScale(class) *
+		80.0 * Pow(GetTickInterval(), 2.0);
 
 	SetPlayerAUX(client, aux);
 
@@ -143,18 +145,26 @@ int GetBitsOfClass(int class)
 
 float GetAUXDrainScale(int class)
 {
-	// TODO: there's probably a simpler way to express this
-	float a = 0.32 * GetAUXRecoveryScale(class);
-	float scale = 80.0 / a;
-	return scale * a * Pow(GetTickInterval(), 2.0);
+	if (class == CLASS_RECON)
+	{
+		return 1.25;
+	}
+	if (class == CLASS_ASSAULT)
+	{
+		return 1.0;
+	}
+	return 0.0;
 }
 
 float GetAUXRecoveryScale(int class)
 {
-	switch (class)
+	if (class == CLASS_RECON)
 	{
-		case CLASS_RECON: return 5.0;
-		case CLASS_ASSAULT: return 2.5;
+		return 5.0;
+	}
+	if (class == CLASS_ASSAULT)
+	{
+		return 2.5;
 	}
 	return 0.0;
 }
